@@ -1,0 +1,5 @@
+outs:
+- md5: c6dd5a2909808f3a901cf00cfd8dfff0
+  size: 124103
+  hash: md5
+  path: wdbc.data
