@@ -1,18 +1,16 @@
 import streamlit as st
 import mlflow.pyfunc
 import numpy as np
+import requests
 import pandas as pd
 
-# MLflow model URI
-logged_model = 'runs:/76119866719d4b18a5666dbeb7e57e00/RandomForestClassifier'
 
-# Load the model as a PyFuncModel
-loaded_model = mlflow.pyfunc.load_model(logged_model)
+API_url = "to modify"
 
 st.title("Breast Cancer Prediction App")
 
 # Define feature names (ensure they match the trained model)
-features = ["perimeter3", "concave_points3", "area3", "radius3", "texture3", "smoothness3", "texture1", "concavity3"]
+features = ["Perimeter_Worst","ConcavePoints_Worst","Area_Worst","Radius_Worst","Texture_Worst","Smoothness_Worst","Texture_Mean","Concavity_Worst"]
 
 # User input form
 form1 = st.form(key="features")
@@ -32,10 +30,10 @@ if form1.form_submit_button("Predict"):
         full_input[0, feature_index] = user_inputs[feature]  # Assign user input value
 
     
-    prediction = loaded_model.predict(full_input)
+    feature_request = requests.post(API_url, json=user_inputs)
+    prediction = feature_request.json().get("prediction", None)
     
-    result = "Malignant" if prediction[0] == 1 else "Benign"
-    st.write(f"### Prediction: {result}")
+    st.write(f"### Prediction: {prediction}")
 
 
 # to run the code: python -m streamlit run user_interface.py

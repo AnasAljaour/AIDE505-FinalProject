@@ -6,6 +6,6 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 4000
+EXPOSE 8501
 
 CMD ["python", "-m" ,"streamlit", "run", "user_interface.py"]
