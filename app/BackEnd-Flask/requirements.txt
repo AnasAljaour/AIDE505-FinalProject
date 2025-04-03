@@ -1,0 +1,6 @@
+Flask
+mlflow
+numpy
+dagshub
+scikit-learn
+gunicorn

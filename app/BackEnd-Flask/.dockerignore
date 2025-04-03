@@ -1,0 +1,5 @@
+mlruns
+models
+.gitignore
+__pycache__
+.dockerignore
