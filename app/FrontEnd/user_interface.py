@@ -1,11 +1,10 @@
 import streamlit as st
-import mlflow.pyfunc
-import numpy as np
+
 import requests
-import pandas as pd
 
 
-API_url = "to modify"
+
+API_URL = "http://Backend-Node:3000/cancer-diagnosis"
 
 st.title("Breast Cancer Prediction App")
 
@@ -15,25 +14,35 @@ features = ["Perimeter_Worst","ConcavePoints_Worst","Area_Worst","Radius_Worst",
 # User input form
 form1 = st.form(key="features")
 user_inputs = {}
-
-
+invalid_inputs = False  # Flag to check for invalid inputs
 for feature in features:
-    user_inputs[feature] = form1.number_input(f"Enter value for {feature}", min_value=0.0, format="%.5f")
+    label = feature.replace("_", " ")  # Format label by removing underscores
+    user_input = form1.text_input(label, value="")  # Text input starts empty
+    try:
+        if user_input.strip() == "":
+            user_inputs[feature] = None  # Mark empty inputs
+        else:
+            user_inputs[feature] = float(user_input)  # Convert to float
+    except ValueError:
+        invalid_inputs = True
+        st.error(f"Invalid input for {label}: Please enter a valid number.")
 
-# Prediction when form is submitted
 if form1.form_submit_button("Predict"):
-    full_input = np.zeros((1, 30))
+    if invalid_inputs:
+        st.error("Fix invalid inputs before predicting.")
+    elif None in user_inputs.values():
+        st.error("Please fill in all the feature values before predicting.")
+    else:
+        input_data = {feature: user_inputs[feature] for feature in features}
+        
+        feature_request = requests.post(API_URL, json=input_data)
 
-    # Fill the corresponding feature values from user input
-    for i, feature in enumerate(features):
-        feature_index = features.index(feature)  # Get the original index of the feature
-        full_input[0, feature_index] = user_inputs[feature]  # Assign user input value
+        try:
+            response_json = feature_request.json()
+            prediction = response_json.get("prediction", None)
+        except Exception as e:
+            st.error(f"Error decoding JSON: {e}")
+            prediction = None
+        
+        st.write(f"### Prediction: {prediction}")
 
-    
-    feature_request = requests.post(API_url, json=user_inputs)
-    prediction = feature_request.json().get("prediction", None)
-    
-    st.write(f"### Prediction: {prediction}")
-
-
-# to run the code: python -m streamlit run user_interface.py
