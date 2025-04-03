@@ -1,0 +1,30 @@
+services:
+  Backend-Flask:
+    image: ml-model-image
+    build:
+      context: ./BackEnd-Flask
+    volumes:
+      - ./BackEnd-Flask:/app
+
+
+  Backend-Node:
+    image: backend-node-image
+    build:
+      context: ./BackEnd
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./BackEnd:/app
+    depends_on:
+      - Backend-Flask
+
+  frontend-server:
+    image: front-end-image
+    build:
+      context: ./FrontEnd
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./FrontEnd:/app
+    depends_on:
+      - Backend-Node
