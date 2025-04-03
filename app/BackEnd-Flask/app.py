@@ -29,9 +29,6 @@ mlflow.set_tracking_uri("https://dagshub.com/AnasAljaour/AIDE505-FinalProject.ml
 
 # dagshub.init(repo_owner='AnasAljaour', repo_name='AIDE505-FinalProject', mlflow=True)
 model = load_model()
-os.makedirs("models", exist_ok=True)
-with open('models/model.pkl', 'wb') as f:
-    pickle.dump(model, f)
 
 
 @app.route("/predict", methods=["POST"])
@@ -47,8 +44,6 @@ def predict():
         
         processed_data = [data.get(feature, DEFAULT_VALUES[feature]) for feature in FEATURE_NAMES]
         input_data = np.array(processed_data).reshape(1, -1)
-        with open('models/model.pkl', 'rb') as f:
-            model = pickle.load(f)
         prediction = model.predict(input_data)
         prediction_value = int(prediction[0])
         return jsonify({"prediction": mapping.get(prediction_value, "Unknown")}), 200

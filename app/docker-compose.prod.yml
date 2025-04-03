@@ -1,0 +1,22 @@
+services:
+  Backend-Flask:
+    image: anasaljaour1/backend-flask:latest
+    build: ./BackEnd-Flask  
+    ports:
+      - "5000:5000"
+
+  Backend-Node:
+    image: anasaljaour1/backend-node:latest
+    build: ./BackEnd
+    ports:
+      - "3000:3000"
+    depends_on:
+      - Backend-Flask
+
+  frontend-server:
+    image: anasaljaour1/frontend:latest
+    build: ./FrontEnd
+    ports:
+      - "8501:8501"
+    depends_on:
+      - Backend-Node
