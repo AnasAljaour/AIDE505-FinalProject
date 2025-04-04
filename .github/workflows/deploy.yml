@@ -1,0 +1,45 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      
+      - name: Build & Push Backend-Node
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend-node:latest ./app/BackEnd
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend-node:latest
+
+      
+      - name: Build & Push Backend-Flask
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend-flask:latest ./app/BackEnd-Flask
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend-flask:latest
+
+      
+      - name: Build & Push Frontend
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./app/FrontEnd
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+
+      
+      - name: Deploy Application
+        run: |
+          docker-compose -f docker-compose.prod.yml up -d
