@@ -40,21 +40,23 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
 
       
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GCP_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+            
+      - name: Set up Google Cloud authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Add GCP VM to known hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.GCP_HOST }} >> ~/.ssh/known_hosts
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          install_components: 'beta'  # optional: if you need beta features
 
-      - name: SSH to GCP and deploy
+      # OPTIONAL: if you still want to SSH via gcloud
+      - name: SSH to VM using gcloud and deploy
         run: |
-          ssh ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_HOST }} << 'EOF'
-            cd ~/AIDE505-FinalProject/app  # Navigate to the app folder where docker-compose.prod.yml is located
-            git pull origin main  # Make sure we have the latest code
-            docker-compose -f docker-compose.prod.yml up -d  # Run docker-compose to start the services
-          EOF
+          gcloud compute ssh ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_INSTANCE_NAME }} \
+            --zone=${{ secrets.GCP_COMPUTE_ZONE }} --project=${{ secrets.GCP_PROJECT_ID }} \
+            --command="cd ~/AIDE505-FinalProject/app && git pull origin main && docker-compose -f docker-compose.prod.yml up -d"
+
 
