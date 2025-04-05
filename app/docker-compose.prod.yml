@@ -8,15 +8,19 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - frontend-server
-      
+
   Backend-Flask:
     image: anasaljaour1/backend-flask:latest
-    build: ./BackEnd-Flask  
+    build: ./BackEnd-Flask
+    ports:
+      - "5000:5000"  
     
 
   Backend-Node:
     image: anasaljaour1/backend-node:latest
     build: ./BackEnd
+    ports:
+      - "3000:3000"
     depends_on:
       - Backend-Flask
 
